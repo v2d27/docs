@@ -8,14 +8,15 @@ const nimbusConfig = defineNimbusConfig({
   // CHANGE_ME: your site's canonical origin (no trailing slash). Drives
   // canonical URLs, absolute OG image URLs, robots.txt, sitemap, and the
   // links in /llms.txt — leaving the placeholder breaks all of them.
-  site: "https://example.com",
+  site: "https://docs.ducduc08.workers.dev/",
   // CHANGE_ME: your project's name — used for <title>, the home H1, and OG.
-  title: "Nimbus",
+  title: "Hercules Docs",
   // CHANGE_ME: a one-line description of your docs — used for meta + OG.
-  description: "Minimal starter consuming nimbus-docs.",
+  description: "Hercules documentation and reference",
   locale: "en",
-  github: null,
-  socialImageAlt: "Nimbus documentation preview",
+  github: "https://github.com/v2d27/docs",
+  editPattern: "https://github.com/v2d27/docs/edit/main/{path}",
+  socialImageAlt: "Hercules document preview",
 });
 
 export default defineConfig({
