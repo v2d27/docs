@@ -97,6 +97,17 @@ const llmsUrl = Astro.site
       collection={collection}
       entryId={entryId}
     />
+
+    <!-- Google tag (gtag.js) -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-M553B5VXJ0"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-M553B5VXJ0");
+    </script>
   </head>
   <body class="min-h-screen bg-background text-foreground antialiased">
     <a
