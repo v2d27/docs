@@ -41,6 +41,8 @@ const versionAlternates = collection && entryId
   : null;
 const currentSiblingUrl = versionAlternates?.canonical?.url ?? null;
 
+const currentYear = new Date().getFullYear();
+
 // Page-body attribute resolution:
 //   - If the user opted out via `searchable: false` (or `noindex: true`
 //     with no explicit override) → ignore.
@@ -223,6 +225,9 @@ const hasPagination = Astro.slots.has("pagination");
                 )}
               </div>
               {hasPagination ? <slot name="pagination" /> : <Pagination prevNext={prevNext} />}
+              <footer class="border-t border-border mt-20 py-6 px-4 lg:px-6 text-center text-xs text-muted-foreground">
+                © {currentYear} by Hercules. All rights reserved.
+              </footer>
             </div>
           </main>
 
