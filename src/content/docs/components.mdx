@@ -101,6 +101,90 @@ OS-specific instructions, multi-language examples.
   </TabItem>
 </Tabs>
 
+## Accordion
+
+Wrap multiple `<Accordion>` items in `<AccordionGroup>` to render them as one
+bordered card with dividers between rows. Pass `open` to start a single
+`<Accordion>` expanded.
+
+<AccordionGroup>
+  <Accordion>
+    <AccordionTrigger>What is Nimbus?</AccordionTrigger>
+    <AccordionContent>
+      A docs framework built on Astro — content collections, sidebar/TOC,
+      and a component registry you install from on demand.
+    </AccordionContent>
+  </Accordion>
+  <Accordion open>
+    <AccordionTrigger>Can an item start open?</AccordionTrigger>
+    <AccordionContent>
+      Yes — pass `open` to `<Accordion>` to render it expanded on load.
+    </AccordionContent>
+  </Accordion>
+</AccordionGroup>
+
+## Popover
+
+Anchored floating content — compose `<PopoverTrigger>` and `<PopoverContent>`
+inside `<Popover>`. Positioned via JS at open time and on scroll/resize.
+
+<Popover>
+  <PopoverTrigger class="rounded-md bg-card px-3 py-1.5 text-sm font-medium ring ring-border hover:bg-accent">
+    Open popover
+  </PopoverTrigger>
+  <PopoverContent>
+    <p class="m-0 text-sm">Anchored to the trigger button.</p>
+  </PopoverContent>
+</Popover>
+
+## Link card
+
+A card whose entire surface is a link — title, optional description, and a
+trailing arrow that nudges on hover.
+
+<LinkCard title="Get started" description="5-minute intro to Nimbus" href="/" />
+
+## File tree
+
+Render a directory tree as nested markup. A trailing `/` marks a directory,
+`**name**` highlights an entry, and `...` renders a placeholder ellipsis.
+
+<FileTree>
+- src/
+  - components/
+    - **Header.astro**
+    - Footer.astro
+  - content/
+    - docs/
+- package.json
+- ...
+</FileTree>
+
+## Frame
+
+A bordered, padded wrapper for screenshots or embedded media, with an
+optional caption. Pass an imported image via `src` to route through Astro's
+image pipeline; a string `src` renders a plain lazy `<img>`.
+
+<Frame src="https://placehold.co/768x432" alt="Placeholder screenshot" caption="Swap `src` for a real screenshot" />
+
+## Embed
+
+A responsive iframe wrapper for external content — YouTube, Loom, Figma,
+etc. Defaults to a 16:9 ratio; override via `ratio`.
+
+<Embed src="https://example.com" title="Example embed" />
+
+## Version switcher
+
+A header dropdown for switching between docs versions. Reads `versions` from
+`nimbus.config.ts` and renders nothing unless at least two versions are
+configured — see `nimbus-docs add new-version`.
+
+```mdx
+<VersionSwitcher collection="docs" entryId={entry.id} />
+```
+
 ## Code blocks
 
 Fenced code blocks render through Shiki with a dual-theme palette. Premium
@@ -203,5 +287,5 @@ Reuse a chunk of MDX across pages with `<Render>`. Partials live in
 
 ## Why so few?
 
-Everything else (Accordion, FileTree, LinkCard, Embed, Frame, etc.) installs
+Everything else (Badge, Button, Dialog, LayerCard, Pagination, etc.) installs
 on demand via `nimbus-docs add <name>` from the registry. Keeps the starter lean.
