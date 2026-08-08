@@ -3,6 +3,7 @@ import icon from "astro-icon";
 import tailwindcss from "@tailwindcss/vite";
 import nimbus, { defineConfig as defineNimbusConfig } from "@cloudflare/nimbus-docs";
 import { tableScroll } from "@cloudflare/nimbus-docs/markdown";
+import { BLOGS } from "./src/lib/blogs";
 
 const nimbusConfig = defineNimbusConfig({
   // CHANGE_ME: your site's canonical origin (no trailing slash). Drives
@@ -17,6 +18,32 @@ const nimbusConfig = defineNimbusConfig({
   github: "https://github.com/v2d27/docs",
   editPattern: "https://github.com/v2d27/docs/edit/main/{path}",
   socialImageAlt: "Hercules document preview",
+  sidebar: {
+    items: [
+      // Must be labelled — `scope: "section"` identifies "the current
+      // section" by walking top-level *group* nodes (see nimbus-docs'
+      // `scopeToCurrentSection`). A label-less autogenerate pushes docs
+      // pages in as flat, ungrouped links instead of one group, so on a
+      // docs page nothing matches and it falls back to rendering the
+      // WHOLE tree — every blog's posts leaking into the docs sidebar.
+      // Labelling it fixes that; it still never joins the header's
+      // cross-section tab strip (a separate nimbus-docs convention: the
+      // root-mounted primary collection has no URL prefix of its own).
+      { label: "Docs", autogenerate: { collection: "docs" } },
+      // One entry per registered blog (src/lib/blogs.ts) — each becomes
+      // its own top-level section with its own scoped sidebar. Once a
+      // second blog (or any other secondary collection) is registered,
+      // the header's tab strip automatically shows a tab per blog.
+      ...BLOGS.map((blog) => ({
+        label: blog.title,
+        autogenerate: { collection: blog.slug },
+      })),
+    ],
+    // Each section (docs, every blog) rails off the others — a blog's
+    // sidebar only shows that blog's posts, not every other section's
+    // tree too. Cross-section nav lives in the header tab strip instead.
+    scope: "section",
+  },
 });
 
 export default defineConfig({

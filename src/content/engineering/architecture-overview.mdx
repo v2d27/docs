@@ -1,0 +1,24 @@
+---
+title: Architecture overview
+description: A high-level tour of how the system fits together.
+---
+
+A high-level tour of the major services, how they talk to each other, and the
+key trade-offs behind the current design.
+
+## Services
+
+The system is split into a handful of independently deployable services,
+each owning a single, well-defined piece of the domain.
+
+## Data flow
+
+Requests enter through a single edge layer, get routed to the owning
+service, and results are composed back at the edge before returning to
+the client.
+
+## Trade-offs
+
+This is example content demonstrating a second page in the `engineering` blog —
+notice the sidebar, table of contents, and prev/next link back to the
+[landing page](/engineering/).

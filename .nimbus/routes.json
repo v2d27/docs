@@ -4,8 +4,14 @@
   "knownRoutes": [
     "/",
     "/404",
+    "/community",
+    "/community/contributor-spotlight",
     "/components",
+    "/engineering",
+    "/engineering/architecture-overview",
     "/getting-started",
+    "/product",
+    "/product/release-notes",
     "/welcome"
   ],
   "opaqueNamespaces": []
