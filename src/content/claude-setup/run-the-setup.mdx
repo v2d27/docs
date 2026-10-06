@@ -1,0 +1,78 @@
+---
+title: Run the setup
+description: Prerequisites and a safe way to run the setup prompt on your repository.
+sidebar:
+  order: 4
+---
+
+## Prerequisites
+
+| Tool | Why | Check |
+|---|---|---|
+| Claude Code | Runs the prompt | `claude --version` |
+| git | Lets you review and revert everything | `git --version` |
+| ast-grep | Semantic search layer | `ast-grep --version` (or `sg --version`) |
+| jq | Used by the hook scripts for JSON | `jq --version` |
+| sha256sum / shasum | Hashing for incremental ingestion | `sha256sum --version` |
+
+The prompt installs ast-grep itself if it is missing. If you'd rather install
+tools yourself, append the [No installs add-on](/claude-setup/prompt-add-ons#no-installs-no-network).
+
+## Run it
+
+<Steps>
+  <Step title="Start from a clean branch">
+    ```bash
+    git status            # should be clean
+    git switch -c chore/claude-setup
+    ```
+    Every generated file then shows up in one reviewable diff, and you can
+    discard everything with a single command.
+  </Step>
+  <Step title="Open Claude Code at the repository root">
+    ```bash
+    cd path/to/your-repo
+    claude
+    ```
+    Run it from the **root**, not from a package folder, so discovery sees
+    the whole monorepo.
+  </Step>
+  <Step title="(Optional) Preview the plan first">
+    For a large or unfamiliar repo, start in plan mode so Claude shows what it
+    intends to create before it writes anything:
+    ```bash
+    claude --permission-mode plan
+    ```
+    Or press `Shift+Tab` in a running session to cycle into plan mode.
+  </Step>
+  <Step title="Paste the prompt">
+    Paste the [setup prompt](/claude-setup/setup-prompt), followed by any
+    [add-ons](/claude-setup/prompt-add-ons), as **one** message.
+  </Step>
+  <Step title="Approve actions as they come">
+    Claude asks before running commands and writing files. Read what it
+    proposes, especially commands that install tools or change `.gitignore`.
+  </Step>
+  <Step title="Read the final report">
+    The prompt ends with a 13-point report. Check part 12, "Validation
+    performed", and part 13, "Assumptions or limitations". Anything listed
+    there needs a human decision.
+  </Step>
+</Steps>
+
+<Aside type="caution" title="Use only trusted repositories">
+  Hooks run shell scripts automatically on every developer's machine. Only run
+  this on repositories you trust, and review `.claude/settings.json` and
+  `.claude/hooks/` before you merge.
+</Aside>
+
+## How long does it take?
+
+The run time depends on repo size. A small repo usually finishes in one
+session. A large monorepo can fill Claude's context window. If that happens,
+Claude Code summarises the earlier conversation automatically and carries on.
+If a run stops partway, start a new session and paste the prompt again with
+the [upgrade add-on](/claude-setup/prompt-add-ons#upgrade-an-existing-setup)
+so it continues from what already exists.
+
+Next: [Review and commit](/claude-setup/review-and-commit).

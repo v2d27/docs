@@ -1,0 +1,92 @@
+---
+title: FAQ
+description: Common questions and troubleshooting for the Claude Code workspace setup.
+sidebar:
+  order: 7
+---
+
+<AccordionGroup>
+  <Accordion>
+    <AccordionTrigger>Does this work for a repo that isn't a monorepo?</AccordionTrigger>
+    <AccordionContent>
+      Yes. Append the
+      [single-package add-on](/claude-setup/prompt-add-ons#single-package-repository)
+      and Claude scopes rules by meaningful source folders instead of packages.
+    </AccordionContent>
+  </Accordion>
+  <Accordion>
+    <AccordionTrigger>Claude Code already has auto memory. Why add session memory?</AccordionTrigger>
+    <AccordionContent>
+      Claude Code's built-in auto memory is personal: it lives in your user
+      folder under `~/.claude/`, not in the repo. The session memory from this
+      setup lives in the repository, so it can be shared with the team, and it
+      has a review path for promoting decisions into ADRs. The two work fine
+      side by side.
+    </AccordionContent>
+  </Accordion>
+  <Accordion>
+    <AccordionTrigger>A rule doesn't seem to apply. How do I check?</AccordionTrigger>
+    <AccordionContent>
+      Run `/context` or `/memory` to see what is loaded. Path-scoped rules
+      only load once Claude works with a file that matches their `paths`
+      globs. Check that the glob is relative to the repo root, and that the
+      folder hasn't been renamed since the rule was written.
+    </AccordionContent>
+  </Accordion>
+  <Accordion>
+    <AccordionTrigger>A skill never gets picked up.</AccordionTrigger>
+    <AccordionContent>
+      Check three things. The file must be exactly
+      `.claude/skills/<name>/SKILL.md`, one level deep, because group
+      folders aren't discovered. The frontmatter needs a `name` and a
+      `description`. The description must say **when** to use the skill. A
+      vague description such as "testing helpers" is rarely picked up;
+      "Use when adding or fixing unit tests in any package" works much better.
+    </AccordionContent>
+  </Accordion>
+  <Accordion>
+    <AccordionTrigger>My custom /review command does something unexpected.</AccordionTrigger>
+    <AccordionContent>
+      Skills and commands share one namespace. A skill with the same name as a
+      command takes precedence over that command, and `/review` is also the
+      name of a built-in command. Rename your commands with the
+      [command prefix add-on](/claude-setup/prompt-add-ons#avoid-clashing-with-built-in-commands),
+      for example `/kb-review`.
+    </AccordionContent>
+  </Accordion>
+  <Accordion>
+    <AccordionTrigger>Claude feels slow after the setup.</AccordionTrigger>
+    <AccordionContent>
+      A hook is almost always the cause. Open `/hooks` and look for anything
+      that runs on every tool call, such as `PreToolUse` or `PostToolUse` with
+      a broad matcher, and does heavy work like a full re-index or a test run.
+      Narrow the matcher, or move the work to a `Stop` or `SessionEnd` hook.
+    </AccordionContent>
+  </Accordion>
+  <Accordion>
+    <AccordionTrigger>Knowledge says STALE. Can I still use it?</AccordionTrigger>
+    <AccordionContent>
+      You can read it, but don't trust it. Run `/ingest` to regenerate only
+      the affected pages. If the change was cosmetic and the page is still
+      correct, the ingestion step re-hashes the sources and marks the page
+      VALID again without rewriting it.
+    </AccordionContent>
+  </Accordion>
+  <Accordion>
+    <AccordionTrigger>We get merge conflicts in .claude/index/.</AccordionTrigger>
+    <AccordionContent>
+      Switch to [local-only indexes](/claude-setup/prompt-add-ons#keep-generated-indexes-out-of-git).
+      The index is a machine-generated cache, so each developer can rebuild
+      it locally.
+    </AccordionContent>
+  </Accordion>
+  <Accordion>
+    <AccordionTrigger>How do I undo the whole setup?</AccordionTrigger>
+    <AccordionContent>
+      If you followed [Run the setup](/claude-setup/run-the-setup), everything
+      is on its own branch. Switch back and delete it with
+      `git switch main && git branch -D chore/claude-setup`. Also check
+      whether the run installed any tools globally, such as ast-grep.
+    </AccordionContent>
+  </Accordion>
+</AccordionGroup>

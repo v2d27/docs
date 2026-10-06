@@ -1,0 +1,139 @@
+---
+title: Maintain it
+description: Day-to-day upkeep of the .claude/ workspace, plus how to evolve the setup prompt itself.
+sidebar:
+  order: 6
+---
+
+The workspace keeps working only if people maintain it like any other code.
+This page covers the routine tasks. Each one should take a few minutes.
+
+## Where does a new instruction go?
+
+Before you add anything, decide which layer it belongs to:
+
+| You want to say… | Put it in | Example |
+|---|---|---|
+| "Always / never do X here" | **Rule** | "Never edit generated files under `src/gen/`." |
+| "To do task X, follow these steps" | **Skill** | "How to add a database migration safely." |
+| "Our system works like X" | **Knowledge** | "Orders flow API → SQS → worker → Postgres." |
+| "We chose X over Y because Z" | **ADR** | "Use SQS rather than Kafka for order events." |
+| "Where to look first" | **CLAUDE.md** | A one-line pointer to the new skill. |
+
+If something seems to fit two layers, split it. A skill can link to a
+knowledge page; it shouldn't copy the page's content.
+
+## Routine tasks
+
+### Add a rule
+
+Create a file under `.claude/rules/`. Scope it with `paths` so it only loads
+where it matters:
+
+```md title=".claude/rules/services/billing.md"
+---
+paths:
+  - "services/billing/**"
+---
+
+- All money values are integers in minor units (cents). Never use floats.
+- Every new endpoint needs an idempotency key.
+```
+
+Keep rules short and phrased as instructions. If you start explaining *why*
+the system works a certain way, that text belongs in knowledge.
+
+### Add a skill
+
+Create `.claude/skills/<name>/SKILL.md`. The `description` decides when Claude
+picks the skill, so describe the **situations** where it should be used:
+
+```md title=".claude/skills/database-migration/SKILL.md"
+---
+name: database-migration
+description: Create, review or roll back a database schema migration. Use when a task changes tables, columns, indexes or seed data.
+---
+
+## Workflow
+1. Find the owning package with `.claude/index/packages.json`.
+2. Read `knowledge/services/<service>.md` for the DB engine and migration tool.
+3. Generate the migration with the package's own command.
+4. Run it against the local DB, then roll it back, then apply it again.
+
+## Validation
+- The migration is reversible, or the PR explains why it isn't.
+```
+
+Keep `SKILL.md` short and move long reference material into
+`references/`. The `.claude/skills/README.md` that the setup generates explains
+your repo's conventions.
+
+### Refresh knowledge
+
+When the code changes, related knowledge pages are marked **STALE**
+automatically. To refresh them:
+
+```text
+/ingest
+```
+
+This only re-processes files whose hashes changed. If a page is wrong but its
+sources haven't changed, edit the page directly and keep its provenance block.
+
+### Check for stale knowledge
+
+```text
+/knowledge
+```
+
+Run this before relying on knowledge for a big change, and periodically on
+`main`. For a stronger guarantee, run the generated
+`.claude/hooks/knowledge/validate.sh` in CI and fail the build when a page is
+stale.
+
+### Promote a session decision to an ADR
+
+Session summaries are temporary. When one records a real decision, promote it:
+
+```text
+/session
+```
+
+Review the summary. If it contains a decision that should outlive the session,
+ask Claude to turn it into an ADR:
+
+```md title=".claude/knowledge/decisions/0007-use-sqs-for-order-events.md"
+# 7. Use SQS for order events
+
+- Status: accepted
+- Date: 2026-10-06
+
+## Context
+## Decision
+## Consequences
+```
+
+## Ownership
+
+- Add `.claude/` to `CODEOWNERS` so changes to rules and hooks get reviewed.
+- Review hook scripts with the same care as CI scripts, because they run on every developer's machine.
+- Keep personal preferences in `.claude/settings.local.json` or `~/.claude/`,
+  not in the shared files.
+
+## Evolving the setup prompt
+
+The [setup prompt](/claude-setup/setup-prompt) is shared across many repos, so
+change it carefully:
+
+1. Edit the prompt on its page and bump the version in the note above it.
+2. Add an entry to the changelog below.
+3. If the change is only useful for some repos, make it an
+   [add-on](/claude-setup/prompt-add-ons) instead.
+4. To upgrade a repo that was set up with an older version, use the
+   [upgrade add-on](/claude-setup/prompt-add-ons#upgrade-an-existing-setup).
+
+### Prompt changelog
+
+| Version | Date | Change |
+|---|---|---|
+| 1.0 | 2026-10-06 | First published version. |
