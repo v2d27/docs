@@ -64,6 +64,11 @@ export const BLOGS = [
     title: "Community",
     description: "Contributor spotlights and community news.",
   },
+  {
+    slug: "claude-setup",
+    title: "Claude Code Setup",
+    description: "A shareable prompt and guide for a repo-local Claude Code system.",
+  },
 ] as const satisfies BlogConfig[];
 
 export type BlogSlug = (typeof BLOGS)[number]["slug"];

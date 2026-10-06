@@ -1,0 +1,905 @@
+---
+title: The setup prompt
+description: The full copy-paste prompt that builds the .claude/ workspace for your repository.
+sidebar:
+  order: 2
+  badge: Copy me
+---
+
+Paste this prompt into Claude Code **from the root of your repository**. Copy
+the whole block, from `You are initializing…` to the final line.
+
+<Aside type="note" title="Prompt version 1.0 (2026-10-06)">
+  When you change the prompt, bump the version here and add a line to the
+  [changelog](/claude-setup/maintenance#prompt-changelog). Teams can then see
+  which version a repo was set up with.
+</Aside>
+
+<Aside type="tip" title="Need tweaks?">
+  Don't edit the prompt for one repo. Paste it unchanged and append blocks from
+  [Prompt add-ons](/claude-setup/prompt-add-ons) after it. The core prompt stays
+  the same everywhere, which makes upgrades easier.
+</Aside>
+
+## The prompt
+
+```text
+You are initializing a production-grade Claude Code environment for this repository.
+
+The repository is a MONOREPO.
+
+Your job is to inspect the repository first, understand its actual structure, and then create a complete repository-local Claude Code system under `.claude/`.
+
+Do NOT blindly assume the technology stack, package managers, directory names, deployment model, or architecture. Discover them from the repository.
+
+==================================================
+GOALS
+==================================================
+
+Build a maintainable Claude Code environment with these layers:
+
+1. CLAUDE.md
+2. Rules
+3. Skills
+4. Knowledge base
+5. Semantic code index using ast-grep
+6. Hash-based knowledge ingestion
+7. Session memory captured through Claude Code hooks
+8. Commands/workflows
+9. Monorepo-aware context resolution
+
+The system must optimize for:
+
+- correctness
+- minimal context loading
+- incremental indexing
+- explicit provenance
+- stale knowledge detection
+- reusable workflows
+- folder/package-specific rules
+- architectural awareness
+- safe automation
+
+Do not create unnecessary files.
+
+==================================================
+TARGET STRUCTURE
+==================================================
+
+Create:
+
+.claude/
+├── settings.json
+│
+├── rules/
+│   ├── global.md
+│   ├── git.md
+│   ├── security.md
+│   ├── testing.md
+│   │
+│   ├── packages/
+│   │   └── <package-specific-rules>
+│   │
+│   ├── apps/
+│   │   └── <app-specific-rules>
+│   │
+│   ├── services/
+│   │   └── <service-specific-rules>
+│   │
+│   ├── infrastructure/
+│   │   └── <infrastructure-specific-rules>
+│   │
+│   └── <other repository-specific scopes>
+│
+├── skills/
+│   ├── README.md
+│   │
+│   ├── repository/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │
+│   ├── code-review/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │
+│   ├── testing/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │
+│   ├── investigation/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │
+│   └── <domain-specific-skills discovered from repo>
+│
+├── knowledge/
+│   ├── README.md
+│   │
+│   ├── architecture/
+│   ├── applications/
+│   ├── packages/
+│   ├── services/
+│   ├── infrastructure/
+│   ├── operations/
+│   ├── integrations/
+│   └── decisions/
+│
+├── index/
+│   ├── files.json
+│   ├── symbols.json
+│   ├── dependencies.json
+│   ├── packages.json
+│   ├── ast.json
+│   └── hashes.json
+│
+├── ast-grep/
+│   ├── sgconfig.yml
+│   └── rules/
+│
+├── sessions/
+│   ├── raw/
+│   ├── summaries/
+│   └── index.json
+│
+├── hooks/
+│   ├── knowledge/
+│   │   ├── detect-changes.sh
+│   │   ├── ingest.sh
+│   │   ├── validate.sh
+│   │   └── update-index.sh
+│   │
+│   ├── session/
+│   │   ├── capture.sh
+│   │   └── summarize.sh
+│   │
+│   └── validation/
+│       ├── security.sh
+│       ├── ast-check.sh
+│       └── tests.sh
+│
+└── commands/
+    ├── review.md
+    ├── investigate.md
+    ├── test.md
+    ├── ingest.md
+    ├── knowledge.md
+    └── session.md
+
+Also create or update the repository-root:
+
+CLAUDE.md
+
+==================================================
+PHASE 1 — REPOSITORY DISCOVERY
+==================================================
+
+Before creating configuration, inspect the repository.
+
+Determine:
+
+- monorepo structure
+- package/app/service boundaries
+- programming languages
+- frameworks
+- package managers
+- build systems
+- test frameworks
+- linting
+- formatting
+- CI/CD
+- Docker
+- Kubernetes
+- Terraform
+- cloud providers
+- databases
+- message brokers
+- API boundaries
+- shared libraries
+- generated code
+- configuration management
+- environment management
+
+Look for:
+
+- package.json
+- pnpm-workspace.yaml
+- yarn.lock
+- package-lock.json
+- turbo.json
+- nx.json
+- lerna.json
+- pom.xml
+- build.gradle
+- go.mod
+- Cargo.toml
+- pyproject.toml
+- requirements.txt
+- composer.json
+- Makefile
+- Dockerfile
+- docker-compose files
+- GitHub Actions
+- GitLab CI
+- Jenkins
+- Terraform
+- Helm
+- Kubernetes
+- README files
+- existing documentation
+
+Do not invent architecture.
+
+==================================================
+PHASE 2 — MONOREPO MODEL
+==================================================
+
+Build an explicit model of the monorepo.
+
+Identify:
+
+- applications
+- services
+- libraries/packages
+- infrastructure
+- tooling
+- shared code
+- test packages
+- generated directories
+
+Represent this in:
+
+.claude/index/packages.json
+
+Example:
+
+{
+  "packages": [
+    {
+      "name": "example-api",
+      "path": "apps/api",
+      "type": "application",
+      "language": "typescript",
+      "framework": "..."
+    }
+  ]
+}
+
+The actual content must be based on repository discovery.
+
+Also record package dependencies and relationships.
+
+==================================================
+PHASE 3 — CLAUDE.MD
+==================================================
+
+Create a concise root CLAUDE.md.
+
+CLAUDE.md must NOT become a giant documentation file.
+
+It should contain:
+
+- project identity
+- monorepo structure
+- core development principles
+- important commands
+- safety constraints
+- instructions for using rules
+- instructions for using skills
+- instructions for using knowledge
+- instructions for semantic search
+- instructions for checking stale knowledge
+
+The root CLAUDE.md should act as the ENTRYPOINT and NAVIGATION MAP.
+
+Do not duplicate detailed knowledge there.
+
+==================================================
+PHASE 4 — RULES
+==================================================
+
+Create rules based on actual repository boundaries.
+
+Rules describe:
+
+"HOW Claude should work."
+
+Rules must NOT describe project facts that belong in knowledge.
+
+Create:
+
+- global rules
+- git rules
+- security rules
+- testing rules
+- package-specific rules
+- application-specific rules
+- service-specific rules
+- infrastructure-specific rules
+
+For a monorepo, rules must be scoped as narrowly as practical.
+
+For example:
+
+apps/frontend/**
+    -> frontend rules
+
+apps/api/**
+    -> backend/API rules
+
+packages/shared/**
+    -> shared-library rules
+
+terraform/**
+    -> Terraform rules
+
+kubernetes/**
+    -> Kubernetes rules
+
+Do not create rules for directories that do not exist.
+
+If Claude Code supports native path-scoped rule loading, use that mechanism.
+
+Do not simulate path scoping through a giant global file.
+
+==================================================
+PHASE 5 — SKILLS
+==================================================
+
+Create `.claude/skills/`.
+
+Skills represent reusable TASK KNOWLEDGE and WORKFLOWS.
+
+Rules answer:
+
+"How must Claude behave?"
+
+Skills answer:
+
+"How should Claude perform this type of task?"
+
+At minimum create:
+
+skills/repository/SKILL.md
+skills/code-review/SKILL.md
+skills/testing/SKILL.md
+skills/investigation/SKILL.md
+
+Then create domain-specific skills based on repository discovery.
+
+Possible examples:
+
+- frontend development
+- backend development
+- database migration
+- API development
+- Terraform
+- AWS
+- Kubernetes
+- Docker
+- CI/CD
+- observability
+- performance investigation
+- security review
+
+Do NOT create irrelevant skills.
+
+Each SKILL.md should contain:
+
+- purpose
+- when to use
+- prerequisites
+- workflow
+- repository-specific commands
+- validation
+- failure handling
+- relevant knowledge paths
+- relevant ast-grep searches
+
+Skills should be concise.
+
+Move large reference material into:
+
+skills/<skill>/references/
+
+==================================================
+PHASE 6 — KNOWLEDGE BASE
+==================================================
+
+Create `.claude/knowledge/`.
+
+Knowledge represents:
+
+"WHAT IS TRUE ABOUT THIS PROJECT?"
+
+Do not use knowledge files as instruction files.
+
+Create only knowledge that can be supported by repository evidence.
+
+At minimum:
+
+knowledge/architecture/
+knowledge/applications/
+knowledge/packages/
+knowledge/services/
+knowledge/infrastructure/
+knowledge/operations/
+knowledge/integrations/
+knowledge/decisions/
+
+Document:
+
+- architecture
+- component relationships
+- data flow
+- dependency flow
+- deployment model
+- infrastructure
+- external integrations
+- operational constraints
+- important architectural decisions
+
+Every generated knowledge document must contain provenance metadata.
+
+Use a format such as:
+
+---
+source:
+  - path/to/file
+  - another/source/file
+
+generated_at: <timestamp>
+
+content_hash:
+  path/to/file: sha256:<hash>
+---
+
+The knowledge system must be able to determine whether knowledge is stale.
+
+==================================================
+PHASE 7 — HASH-BASED KNOWLEDGE INGESTION
+==================================================
+
+Implement incremental knowledge ingestion.
+
+Use SHA-256.
+
+Create:
+
+.claude/index/hashes.json
+
+Track at minimum:
+
+- file content hash
+- AST hash when applicable
+- last ingestion timestamp
+- related knowledge documents
+- ingestion status
+
+Example:
+
+{
+  "apps/api/src/foo.ts": {
+    "content_hash": "sha256:...",
+    "ast_hash": "sha256:...",
+    "knowledge": [
+      "applications/api.md"
+    ],
+    "last_ingested": "...",
+    "status": "valid"
+  }
+}
+
+On every relevant change:
+
+1. calculate file hash
+2. compare with previous hash
+3. skip unchanged files
+4. identify changed files
+5. determine whether the change is semantic
+6. use ast-grep where appropriate
+7. regenerate affected knowledge
+8. update provenance
+9. update hashes
+
+Do not re-ingest the entire repository unnecessarily.
+
+Formatting-only changes should not automatically trigger expensive semantic knowledge regeneration when AST structure is unchanged.
+
+==================================================
+PHASE 8 — AST-GREP
+==================================================
+
+Use ast-grep as the repository semantic search/indexing layer.
+
+Do not rely exclusively on textual grep.
+
+Install/configure ast-grep only if it is not already available.
+
+Create:
+
+.claude/ast-grep/sgconfig.yml
+
+and repository-specific rules under:
+
+.claude/ast-grep/rules/
+
+Discover language(s) and create appropriate semantic patterns.
+
+Examples of useful semantic searches:
+
+- function definitions
+- class definitions
+- API handlers
+- database queries
+- HTTP clients
+- AWS resource definitions
+- Kubernetes resources
+- imports
+- dependency injection
+- event handlers
+- dangerous APIs
+- authentication/authorization code
+- configuration access
+
+Do not create meaningless patterns merely to increase the number of rules.
+
+Store machine-generated semantic information in:
+
+.claude/index/ast.json
+
+==================================================
+PHASE 9 — SEMANTIC INDEX
+==================================================
+
+Create machine-readable indexes:
+
+.claude/index/files.json
+.claude/index/symbols.json
+.claude/index/dependencies.json
+.claude/index/packages.json
+.claude/index/ast.json
+.claude/index/hashes.json
+
+The indexes should help Claude answer:
+
+- Where is this implemented?
+- What depends on this?
+- Which package owns this code?
+- What changed?
+- What files are affected?
+- What API handlers exist?
+- Where are database calls?
+- Which infrastructure resources are related?
+
+Do not duplicate the complete source code in the index.
+
+==================================================
+PHASE 10 — SESSION MEMORY
+==================================================
+
+Implement repository-local Claude session memory using hooks.
+
+Store:
+
+.claude/sessions/raw/
+
+for raw session information where supported.
+
+Store:
+
+.claude/sessions/summaries/
+
+for durable summaries.
+
+Store:
+
+.claude/sessions/index.json
+
+as a searchable session index.
+
+Capture useful information such as:
+
+- task
+- files inspected
+- files changed
+- decisions
+- findings
+- unresolved questions
+- tests performed
+- failures
+- follow-up actions
+
+Do NOT blindly promote all session content into permanent project knowledge.
+
+Use this lifecycle:
+
+session
+  ↓
+raw memory
+  ↓
+summary
+  ↓
+candidate knowledge
+  ↓
+validated project knowledge
+
+Architectural decisions should be promoted to:
+
+knowledge/decisions/
+
+as ADRs.
+
+Temporary debugging information should remain session memory.
+
+==================================================
+PHASE 11 — HOOKS
+==================================================
+
+Use Claude Code hooks where supported.
+
+Hooks should automate deterministic tasks.
+
+Create hooks for:
+
+1. knowledge change detection
+2. hash calculation
+3. semantic indexing
+4. session capture
+5. validation
+6. security checks
+
+Do not use hooks for tasks that require subjective reasoning.
+
+Good hook:
+
+"Terraform changed -> run terraform fmt/validate."
+
+Bad hook:
+
+"Determine whether architecture is good."
+
+Hooks should be:
+
+- deterministic
+- fast
+- idempotent
+- failure-aware
+
+Do not make normal Claude interaction unusably slow.
+
+Prefer asynchronous/background processing where the Claude Code hook lifecycle permits it.
+
+==================================================
+PHASE 12 — COMMANDS
+==================================================
+
+Create reusable commands:
+
+/review
+/investigate
+/test
+/ingest
+/knowledge
+/session
+
+Commands should invoke the appropriate:
+
+- rules
+- skills
+- knowledge
+- semantic indexes
+- validation
+
+Do not duplicate the same instructions across commands and skills.
+
+==================================================
+PHASE 13 — KNOWLEDGE VALIDATION
+==================================================
+
+Create a mechanism to detect stale knowledge.
+
+For every knowledge document:
+
+1. read provenance
+2. calculate current source hashes
+3. compare hashes
+4. mark knowledge VALID or STALE
+
+Example:
+
+{
+  "document": "knowledge/infrastructure/aws.md",
+  "status": "stale",
+  "changed_sources": [
+    "terraform/network/alb.tf"
+  ]
+}
+
+Do not silently present stale knowledge as authoritative.
+
+==================================================
+PHASE 14 — SECURITY
+==================================================
+
+The Claude system must never store secrets in:
+
+- knowledge
+- session summaries
+- indexes
+- logs
+
+Detect and redact:
+
+- API keys
+- access tokens
+- passwords
+- private keys
+- credentials
+- connection strings containing secrets
+
+Never commit `.env` contents.
+
+Never include secret values in generated knowledge.
+
+==================================================
+PHASE 15 — GIT
+==================================================
+
+Determine which `.claude` files should be committed.
+
+Prefer committing:
+
+- CLAUDE.md
+- rules
+- skills
+- knowledge
+- ast-grep rules
+- commands
+- deterministic hook scripts
+
+Do not commit:
+
+- ephemeral session data
+- caches
+- generated temporary data
+- machine-specific state
+
+Add appropriate `.gitignore` entries.
+
+==================================================
+PHASE 16 — DOCUMENTATION
+==================================================
+
+Create:
+
+.claude/README.md
+
+Explain:
+
+- architecture of the Claude environment
+- rules vs skills vs knowledge
+- indexing
+- ast-grep
+- hash ingestion
+- session memory
+- hooks
+- how developers should maintain it
+
+Also create:
+
+.claude/skills/README.md
+
+Explain how to create a new skill.
+
+==================================================
+PHASE 17 — VALIDATION
+==================================================
+
+After implementation:
+
+1. Validate the Claude configuration.
+2. Validate shell scripts.
+3. Validate JSON.
+4. Validate YAML.
+5. Validate ast-grep configuration.
+6. Verify hashes can be generated.
+7. Verify unchanged files are skipped.
+8. Verify changed files are detected.
+9. Verify knowledge provenance works.
+10. Verify stale knowledge can be detected.
+11. Verify monorepo package discovery.
+12. Verify session hooks.
+13. Verify no secrets were accidentally generated.
+14. Review the final git diff.
+
+Do not stop after creating files.
+
+Actually test the important automation.
+
+==================================================
+IMPORTANT DESIGN PRINCIPLES
+==================================================
+
+Follow these principles throughout the implementation:
+
+1. CLAUDE.md is an entrypoint, not a knowledge dump.
+
+2. Rules define constraints.
+
+3. Skills define reusable workflows.
+
+4. Knowledge defines project facts.
+
+5. Indexes contain machine-generated metadata.
+
+6. ast-grep provides semantic code understanding.
+
+7. Hashes provide incremental invalidation.
+
+8. Hooks provide deterministic automation.
+
+9. Sessions provide ephemeral memory.
+
+10. ADRs provide durable architectural memory.
+
+11. Never silently trust stale knowledge.
+
+12. Never regenerate everything when only a small part changed.
+
+13. Never invent project facts.
+
+14. Prefer repository evidence over assumptions.
+
+15. Prefer narrow context over loading the entire repository.
+
+16. Keep the system maintainable by humans.
+
+==================================================
+FINAL TASK
+==================================================
+
+Start by inspecting the repository.
+
+Then implement the complete `.claude/` system described above, adapting it to the actual monorepo structure.
+
+Do not ask me to manually create the files.
+
+Create them yourself.
+
+When finished, provide:
+
+1. Repository structure discovered
+2. `.claude` structure created
+3. Rules created
+4. Skills created
+5. Knowledge created
+6. ast-grep configuration
+7. Indexing strategy
+8. Hash/invalidation strategy
+9. Session-memory strategy
+10. Hooks created
+11. Commands created
+12. Validation performed
+13. Any assumptions or limitations
+
+Do not claim something was implemented unless you actually created and validated it.
+```
+
+## What the prompt does, phase by phase
+
+| Phase | Output |
+|---|---|
+| 1–2 Discovery and monorepo model | `.claude/index/packages.json`, built from real manifests, not guesses |
+| 3 CLAUDE.md | A short entrypoint and navigation map |
+| 4 Rules | Path-scoped rules for directories that actually exist |
+| 5 Skills | Four core skills plus domain skills found in the repo |
+| 6–7 Knowledge and ingestion | Fact pages with provenance; SHA-256 incremental ingestion |
+| 8–9 ast-grep and index | Semantic search rules; machine-readable JSON indexes |
+| 10–11 Sessions and hooks | Session capture/summary; deterministic automation |
+| 12 Commands | `/review`, `/investigate`, `/test`, `/ingest`, `/knowledge`, `/session` |
+| 13 Validation | VALID / STALE status for every knowledge page |
+| 14–15 Security and git | Secret redaction; `.gitignore` for ephemeral data |
+| 16–17 Docs and self-test | `.claude/README.md`; the automation is actually run, not only written |
+
+Next: [Prompt add-ons](/claude-setup/prompt-add-ons) or go straight to
+[Run the setup](/claude-setup/run-the-setup).

@@ -1,0 +1,78 @@
+---
+title: Review and commit
+description: A checklist for reviewing the generated .claude/ workspace before merging it.
+sidebar:
+  order: 5
+---
+
+Treat the generated `.claude/` folder like any other pull request. Most of it
+is plain Markdown and shell scripts, so a reviewer can go through it quickly.
+
+## Review checklist
+
+### Structure and context
+
+- [ ] Root `CLAUDE.md` is short (aim for under ~150 lines) and points to other files instead of copying them.
+- [ ] Every rule under `.claude/rules/` with a `paths:` block matches folders that actually exist.
+- [ ] Rules contain instructions only, not descriptions of the system.
+- [ ] Each skill sits directly under `.claude/skills/<name>/SKILL.md` and has a clear `description`.
+- [ ] Skills describe procedures only; project facts are linked from `.claude/knowledge/`.
+
+### Knowledge
+
+- [ ] Every knowledge page has a provenance block (`source`, `generated_at`, `content_hash`).
+- [ ] Spot-check three facts against the code. Anything Claude couldn't support with evidence shouldn't be there.
+- [ ] `/knowledge` reports all pages as VALID.
+
+### Hooks
+
+- [ ] Open `/hooks` in Claude Code and confirm every hook is one you expect.
+- [ ] Hook scripts are fast and safe to run more than once. Nothing slow runs on every tool call.
+- [ ] No hook makes network calls or changes anything outside `.claude/` without a clear reason.
+
+### Security
+
+- [ ] No secrets in `knowledge/`, `index/`, `sessions/` or hook logs. A quick scan:
+  ```bash
+  git diff --cached -- .claude CLAUDE.md | grep -inE 'api[_-]?key|secret|password|token|BEGIN .*PRIVATE KEY' || echo "clean"
+  ```
+- [ ] `.env` files are not read into any generated file.
+
+### Git hygiene
+
+- [ ] `.gitignore` excludes `.claude/sessions/raw/`, caches, and `.claude/settings.local.json`.
+
+## What to commit
+
+| Commit | Don't commit |
+|---|---|
+| `CLAUDE.md` | `.claude/sessions/raw/` (raw transcripts may contain sensitive data) |
+| `.claude/settings.json` | `.claude/settings.local.json` (personal settings) |
+| `.claude/rules/` | Caches and temporary files |
+| `.claude/skills/` | `.claude/index/` if you chose [local-only indexes](/claude-setup/prompt-add-ons#keep-generated-indexes-out-of-git) |
+| `.claude/knowledge/` (including ADRs) | |
+| `.claude/ast-grep/` | |
+| `.claude/hooks/` | |
+| `.claude/commands/` | |
+| `.claude/README.md` | |
+
+<Aside type="note" title="Session summaries">
+  Whether to commit `.claude/sessions/summaries/` is up to your team. If you
+  commit them, scan them for secrets first. Many teams keep only promoted ADRs
+  in git and leave summaries local.
+</Aside>
+
+## Smoke test after merging
+
+Ask a teammate to pull the branch, start `claude` in a sub-package, and try:
+
+```text
+/context
+```
+
+Check that only the relevant rules are loaded. Then ask a question the
+knowledge base should answer, such as *"Which service owns order emails?"*,
+and check that Claude cites a knowledge page rather than searching the whole
+repo.
+
+Next: [Maintain it](/claude-setup/maintenance).

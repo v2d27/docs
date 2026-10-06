@@ -1,0 +1,155 @@
+---
+title: How it fits together
+description: The layers of the Claude Code workspace and the one question each layer answers.
+sidebar:
+  order: 1
+---
+
+The setup works because every file has one job. When everything goes into a
+single `CLAUDE.md`, Claude loads too much context, facts go stale without
+anyone noticing, and nobody knows where a new instruction belongs. This page
+explains how the work is split up.
+
+## One question per layer
+
+| Layer | Answers | Lives in | Written by |
+|---|---|---|---|
+| `CLAUDE.md` | "Where do I look?" | repo root | Humans (short, rarely changes) |
+| Rules | "How **must** Claude behave here?" | `.claude/rules/` | Humans |
+| Skills | "How **should** Claude do this kind of task?" | `.claude/skills/` | Humans |
+| Knowledge | "What is **true** about this project?" | `.claude/knowledge/` | Generated, then reviewed |
+| Index | "Where is it, and what depends on it?" | `.claude/index/` | Machine only |
+| ast-grep | "Find code by structure, not text" | `.claude/ast-grep/` | Humans |
+| Hooks | "What runs automatically?" | `.claude/hooks/` + `settings.json` | Humans |
+| Sessions | "What happened last time?" | `.claude/sessions/` | Machine, then summarised |
+| ADRs | "Why did we decide this?" | `.claude/knowledge/decisions/` | Promoted from sessions |
+
+<Aside type="caution" title="The most common mistake">
+  Putting project facts in skills. A skill describes a **procedure** that would
+  work in any repo, such as how to investigate a failing test. Facts about this
+  repo, such as "the API uses Postgres 16 via Prisma", go in knowledge. Keep them
+  apart and your skills can be copied to other repos.
+</Aside>
+
+## How a task flows through the layers
+
+```text
+                  User task
+                     │
+                     ▼
+              ┌─────────────┐
+              │    Skill    │
+              │ "how to do" │
+              └──────┬──────┘
+                     │
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+      Rules      Knowledge      Index
+  "constraints"   "facts"    "structure"
+        │            │            │
+        └────────────┼────────────┘
+                     ▼
+                 ast-grep
+                     │
+                     ▼
+               Relevant code
+                     │
+                     ▼
+                   Claude
+                     │
+              ┌──────┴──────┐
+              ▼             ▼
+            Hooks        Session
+              │             │
+              ▼             ▼
+         Validation      Memory
+              │             │
+              └──────┬──────┘
+                     ▼
+              Knowledge update
+```
+
+## Rules are scoped by path
+
+In a monorepo, frontend rules shouldn't load when you're editing Terraform.
+Claude Code supports **path-scoped rules**: a rule file whose frontmatter lists
+glob patterns only loads when Claude works on matching files.
+
+```md title=".claude/rules/apps/web.md"
+---
+paths:
+  - "apps/web/**"
+---
+
+- Components are function components; no class components.
+- Use the shared design tokens from `packages/ui`, never hard-coded colours.
+```
+
+The setup prompt tells Claude to use this native mechanism, so it won't build
+one large global file that tries to cover every folder.
+
+## Skills are capability-oriented
+
+Organise skills by **what they help you do**, not by which folder they belong to:
+
+<FileTree>
+- .claude/skills/
+  - repository/
+  - investigation/
+  - code-review/
+  - testing/
+  - dependency-analysis/
+  - architecture/
+  - database-migration/
+  - terraform/
+  - kubernetes/
+  - security/
+  - performance/
+</FileTree>
+
+Each skill then pulls in the rules and knowledge for the path you are working
+on. A single `code-review` skill works for both the frontend and the API because
+the folder-specific details come from rules and knowledge.
+
+## Knowledge records its sources
+
+Every generated knowledge page starts with metadata that lists its source files
+and their SHA-256 hashes:
+
+```yaml
+---
+source:
+  - terraform/network/alb.tf
+  - terraform/network/variables.tf
+generated_at: 2026-10-06T09:00:00Z
+content_hash:
+  terraform/network/alb.tf: sha256:9f2c…
+  terraform/network/variables.tf: sha256:41ab…
+---
+```
+
+When a source file changes, its hash no longer matches and the page is marked
+**STALE**. Claude is told never to treat stale knowledge as authoritative.
+Formatting-only changes leave the AST hash unchanged, so they don't trigger an
+expensive regeneration.
+
+## Session memory has a promotion path
+
+Not everything from a session deserves to be kept. The lifecycle is:
+
+```text
+session → raw memory → summary → candidate knowledge → validated knowledge
+```
+
+Temporary debugging notes stay in session memory. Real architectural decisions
+are promoted to ADRs in `knowledge/decisions/`, where the team can review them.
+
+## Hooks only do deterministic work
+
+A hook is a script that Claude Code runs on an event, such as after a file edit
+or when a session ends. Hooks must be **fast, idempotent and deterministic**:
+
+- Good: "A `.tf` file changed → run `terraform fmt -check`."
+- Good: "A source file changed → recompute its hash and mark linked knowledge stale."
+- Bad: "Decide whether the architecture is good." That needs judgement, so it
+  belongs in a skill.

@@ -1,0 +1,78 @@
+---
+title: Claude Code Setup
+description: One copy-paste prompt that turns any repository into a well-organised, self-maintaining Claude Code workspace.
+sidebar:
+  order: 0
+---
+
+This guide gives you **one prompt** that you paste into Claude Code at the root
+of your repository. Claude inspects the repo and builds a complete `.claude/`
+workspace tailored to it, including rules, skills, a knowledge base, a semantic
+index, hooks and session memory. You don't write any of these files by hand.
+
+It is designed for **monorepos**, but works for single-package repos too.
+
+## What you get
+
+<CardGrid>
+  <Card title="Rules" icon="ph:shield-check">
+    Constraints on *how* Claude works, scoped to the folders they apply to
+    (frontend, API, Terraform, …).
+  </Card>
+  <Card title="Skills" icon="ph:toolbox">
+    Reusable step-by-step workflows: code review, testing, investigation,
+    plus skills for your domain.
+  </Card>
+  <Card title="Knowledge" icon="ph:books">
+    Facts about *your* project, with source references and hashes so stale
+    pages are detected automatically.
+  </Card>
+  <Card title="Semantic index" icon="ph:tree-structure">
+    `ast-grep` rules plus JSON indexes that answer "where is this?" and
+    "what depends on this?" without reading the whole repo.
+  </Card>
+  <Card title="Hooks" icon="ph:lightning">
+    Deterministic automation: change detection, hashing, validation and
+    security checks.
+  </Card>
+  <Card title="Session memory" icon="ph:clock-counter-clockwise">
+    Summaries of past sessions, with a clear path for promoting real
+    decisions into ADRs.
+  </Card>
+</CardGrid>
+
+## Quick start
+
+<Steps>
+  <Step title="Check prerequisites">
+    Claude Code is installed, the repo is clean, and you are on a new branch.
+    See [Run the setup](/claude-setup/run-the-setup).
+  </Step>
+  <Step title="Copy the prompt">
+    Copy the full prompt from [The setup prompt](/claude-setup/setup-prompt).
+    You can also add any [optional add-ons](/claude-setup/prompt-add-ons) you need.
+  </Step>
+  <Step title="Run it from the repository root">
+    Start `claude` at the repo root, paste the prompt, and let it work.
+    Large monorepos can take a while.
+  </Step>
+  <Step title="Review and commit">
+    Go through the [review checklist](/claude-setup/review-and-commit), then
+    open a PR so your team can review the `.claude/` folder like any other code.
+  </Step>
+</Steps>
+
+<Aside type="tip" title="Share one link">
+  To onboard a teammate, send them this page. Everything they need, including
+  the prompt, is linked from here.
+</Aside>
+
+## Guide contents
+
+<LinkCard title="How it fits together" description="Rules vs skills vs knowledge, and why the split matters." href="/claude-setup/concepts" />
+<LinkCard title="The setup prompt" description="The full copy-paste prompt." href="/claude-setup/setup-prompt" />
+<LinkCard title="Prompt add-ons" description="Optional blocks to append for your team's needs." href="/claude-setup/prompt-add-ons" />
+<LinkCard title="Run the setup" description="Prerequisites and how to run the prompt safely." href="/claude-setup/run-the-setup" />
+<LinkCard title="Review and commit" description="What to check before merging the generated files." href="/claude-setup/review-and-commit" />
+<LinkCard title="Maintain it" description="Day-to-day upkeep: adding rules, skills, knowledge and ADRs." href="/claude-setup/maintenance" />
+<LinkCard title="FAQ" description="Common questions and troubleshooting." href="/claude-setup/faq" />

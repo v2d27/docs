@@ -1,0 +1,141 @@
+---
+title: Prompt add-ons
+description: Optional blocks to append after the core setup prompt, so the core prompt stays identical across repositories.
+sidebar:
+  order: 3
+---
+
+Add-ons let you adapt the setup without forking the core prompt. Paste the
+[core prompt](/claude-setup/setup-prompt) first, then add any of the blocks
+below **after** it, in the same message.
+
+<Aside type="tip">
+  If you find you add the same add-on to every repo, propose it for the core
+  prompt and record it in the
+  [changelog](/claude-setup/maintenance#prompt-changelog).
+</Aside>
+
+## Capability-oriented skills
+
+Recommended for most monorepos. It organises skills by capability instead of
+by folder.
+
+```text
+==================================================
+ADD-ON — CAPABILITY-ORIENTED SKILLS
+==================================================
+
+Organise skills by capability, not by directory. Prefer skills such as:
+repository, investigation, code-review, testing, dependency-analysis,
+architecture, database-migration, terraform, kubernetes, security, performance
+— but only those the repository actually needs.
+
+Each skill must reference the path-scoped rules and knowledge relevant to the
+files being worked on, instead of duplicating them.
+
+Skills must NOT contain project memory. They hold reusable procedures;
+project-specific facts belong in .claude/knowledge/.
+
+Keep every skill one level deep: .claude/skills/<name>/SKILL.md.
+Do not nest skills inside group folders — Claude Code will not discover them.
+```
+
+## Single-package repository
+
+Use this for a repo that is not a monorepo.
+
+```text
+==================================================
+ADD-ON — SINGLE-PACKAGE REPOSITORY
+==================================================
+
+Override: this repository is NOT a monorepo. Treat it as one package.
+Skip packages/, apps/ and services/ rule scopes unless real sub-boundaries
+exist (e.g. src/api vs src/web). Keep packages.json with a single entry.
+Scope rules by meaningful source directories instead.
+```
+
+## Avoid clashing with built-in commands
+
+Claude Code already has built-in commands such as `/review` and `/init`, and
+skills and commands share one namespace. Prefixing your commands keeps them
+unambiguous.
+
+```text
+==================================================
+ADD-ON — COMMAND PREFIX
+==================================================
+
+Prefix every custom command created in Phase 12 with "kb-":
+/kb-review, /kb-investigate, /kb-test, /kb-ingest, /kb-knowledge, /kb-session.
+Do not create a command or skill whose name matches a Claude Code built-in
+command. Do not give a command and a skill the same name.
+```
+
+## Keep generated indexes out of git
+
+On busy monorepos, committing `.claude/index/` causes frequent merge
+conflicts. With this add-on, each developer regenerates the indexes locally.
+Staleness detection still works because every knowledge page stores its own
+source hashes.
+
+```text
+==================================================
+ADD-ON — LOCAL-ONLY INDEXES
+==================================================
+
+Treat .claude/index/ as a local cache: add it to .gitignore and provide a
+single idempotent command (documented in .claude/README.md) that rebuilds it
+from scratch. Knowledge staleness must be computable from each knowledge
+document's provenance block alone, without index/hashes.json.
+```
+
+## Documentation language
+
+Use this if your team reads documentation in a language other than English.
+
+```text
+==================================================
+ADD-ON — DOCUMENTATION LANGUAGE
+==================================================
+
+Write knowledge documents, ADRs, session summaries and READMEs in <LANGUAGE>.
+Keep rules, skills, commands, file names, code identifiers and JSON keys in
+English.
+```
+
+## No installs, no network
+
+Use this in locked-down environments or when you want the run to stay
+read-only apart from the files it creates.
+
+```text
+==================================================
+ADD-ON — NO INSTALLS
+==================================================
+
+Do not install any tool, package or binary, and do not change global or user
+configuration. If a required tool (e.g. ast-grep, jq) is missing, write the
+configuration anyway, skip the validation step that needs it, and list it
+under "assumptions or limitations" with the exact install command.
+```
+
+## Upgrade an existing setup
+
+Use this when the repo already has a `.claude/` folder from an earlier prompt
+version, or one written by hand.
+
+```text
+==================================================
+ADD-ON — UPGRADE MODE
+==================================================
+
+A .claude/ directory already exists. Do NOT overwrite it wholesale.
+
+1. Inventory what exists and map each file to the target structure.
+2. Keep human-written rules, skills and ADRs; only restructure them if they
+   clearly violate the layer separation, and explain each move.
+3. Add missing layers and files.
+4. Regenerate machine-generated files (index/, provenance blocks) freely.
+5. Finish with a table: kept / moved / added / regenerated / removed.
+```
